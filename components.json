@@ -5,7 +5,7 @@
   "tsx": true,
   "tailwind": {
     "config": "tailwind.config.js",
-    "css": "app/globlas.css",
+    "css": "src/app/globlas.css",
     "baseColor": "slate",
     "cssVariables": false
   },
