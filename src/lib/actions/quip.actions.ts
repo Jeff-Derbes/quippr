@@ -2,6 +2,7 @@
 import { connectToDB } from "@/lib/mongoose";
 import Quip from "@/lib/models/quip.model";
 import User from "@/lib/models/user.model";
+import { revalidatePath } from "next/cache";
 
 interface Params {
   text: string;
@@ -62,5 +63,81 @@ export async function createQuip({ text, author, path, communityId }: Params) {
     });
   } catch (err: any) {
     throw new Error("Error creating quip: " + err.message);
+  }
+}
+
+export async function fetchQuipById(id: string) {
+  connectToDB();
+
+  try {
+    const quip = await Quip.findById(id)
+      .populate({
+        path: "author",
+        model: User,
+        select: "_id id name image",
+      })
+      .populate({
+        path: "children",
+        populate: [
+          {
+            path: "author",
+            model: User,
+            select: "_id id name parentId image",
+          },
+          {
+            path: "children",
+            model: "Quip",
+            populate: {
+              path: "author",
+              model: User,
+              select: "_id id name parentId image",
+            },
+          },
+        ],
+      })
+      .exec();
+
+    return quip;
+  } catch (err: any) {
+    throw new Error("Error fetching quip: " + err.message);
+  }
+}
+
+export async function addCommentToQuip(
+  quipId: string,
+  commentText: string,
+  userId: string,
+  path: string
+) {
+  await connectToDB();
+
+  try {
+    // Find the original quip by its ID
+    const originalQuip = await Quip.findById(quipId);
+
+    if (!originalQuip) {
+      throw new Error("Thread not found");
+    }
+
+    // Create the new comment quip
+    const commentQuip = new Quip({
+      text: commentText,
+      author: userId,
+      parentId: quipId, // Set the parentId to the original thread's ID
+    });
+
+    // Save the comment quip to the database
+    const savedCommentQuip = await commentQuip.save();
+
+    // Add the comment quip's ID to the original thread's children array
+    originalQuip.children.push(savedCommentQuip._id);
+
+    // Save the updated original quip to the database
+    await originalQuip.save();
+
+    revalidatePath(path);
+  } catch (err) {
+    console.error("Error while adding comment:", err);
+    throw new Error("Unable to add comment");
   }
 }
