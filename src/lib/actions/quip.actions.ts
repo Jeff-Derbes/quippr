@@ -59,7 +59,7 @@ export async function createQuip({ text, author, path, communityId }: Params) {
 
     // update user
     await User.findByIdAndUpdate(author, {
-      $push: { quips: createdQuip._id },
+      $push: { quip: createdQuip._id },
     });
   } catch (err: any) {
     throw new Error("Error creating quip: " + err.message);

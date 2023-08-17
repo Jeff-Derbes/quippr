@@ -34,13 +34,6 @@ const TopBar = () => {
             </SignOutButton>
           </SignedIn>
         </div>
-        <OrganizationSwitcher
-          appearance={{
-            elements: {
-              organizationSwitcherTrigger: "py-2 px-4",
-            },
-          }}
-        />
       </div>
     </nav>
   );

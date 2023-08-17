@@ -3,6 +3,7 @@
 import { connectToDB } from "@/lib/mongoose";
 import User from "@/lib/models/user.model";
 import { revalidatePath } from "next/cache";
+import Quip from "@/lib/models/quip.model";
 
 interface Params {
   userId: string;
@@ -51,5 +52,32 @@ export async function updateUser({
     }
   } catch (error: any) {
     throw new Error(`Failed to create/update user: ${error.message}`);
+  }
+}
+
+export async function fetchUserPosts(userId: string) {
+  try {
+    await connectToDB();
+
+    // Find all quips authored by the user with the given userId
+    const quips = await User.findOne({ id: userId }).populate({
+      path: "quip",
+      model: Quip,
+      populate: [
+        {
+          path: "children",
+          model: Quip,
+          populate: {
+            path: "author",
+            model: User,
+            select: "name image id",
+          },
+        },
+      ],
+    });
+    return quips;
+  } catch (error) {
+    console.error("Error fetching user quips:", error);
+    throw error;
   }
 }
