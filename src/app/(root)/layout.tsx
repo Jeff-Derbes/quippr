@@ -31,7 +31,6 @@ export default function RootLayout({
             <section className={"main-container"}>
               <div className={"w-full max-w-4xl"}>{children}</div>
             </section>
-            <RightSidebar />
           </main>
 
           <BottomBar />
