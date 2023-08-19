@@ -1,5 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
+import { deleteQuip } from "@/lib/actions/quip.actions";
+import DeleteButton from "@/components/ui/deleteButton";
 
 interface Props {
   id: string;
@@ -97,6 +99,14 @@ function QuipCard({
                   width={24}
                   height={24}
                   className="cursor-pointer object-contain"
+                />
+
+                <DeleteButton
+                  quipId={JSON.stringify(id)}
+                  currentUserId={currentUserId}
+                  authorId={author.id}
+                  parentId={parentId}
+                  isComment={isComment}
                 />
               </div>
 

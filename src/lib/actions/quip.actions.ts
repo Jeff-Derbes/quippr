@@ -141,3 +141,48 @@ export async function addCommentToQuip(
     throw new Error("Unable to add comment");
   }
 }
+
+async function fetchAllChildQuips(quipId: string): Promise<any[]> {
+  const childQuips = await Quip.find({ parentId: quipId });
+
+  const descendantQuips = [];
+  for (const childQuip of childQuips) {
+    const descendants = await fetchAllChildQuips(childQuip._id);
+    descendantQuips.push(childQuip, ...descendants);
+  }
+
+  return descendantQuips;
+}
+
+export async function deleteQuip(quipId: string, path: string) {
+  await connectToDB();
+
+  const rootQuip = await Quip.findById(quipId).populate("author");
+  if (!rootQuip) {
+    throw new Error("Quip not found");
+  }
+
+  const descdendantQuips = await fetchAllChildQuips(quipId);
+  const descendantQuipIds = [
+    quipId,
+    ...descdendantQuips.map((quip) => quip._id),
+  ];
+
+  const uniqueAuthorIds = new Set(
+    [
+      ...descdendantQuips.map((quip) => quip.author?._id?.toString()),
+      rootQuip.author?._id?.toString(),
+    ].filter((id) => id !== undefined)
+  );
+
+  await Quip.deleteMany({ _id: { $in: descendantQuipIds } });
+
+  await User.updateMany(
+    { _id: { $in: Array.from(uniqueAuthorIds) } },
+    { $pull: { quip: { $in: descendantQuipIds } } }
+  );
+
+  revalidatePath(path);
+
+  await Quip.findByIdAndDelete(quipId);
+}
