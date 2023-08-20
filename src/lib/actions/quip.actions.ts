@@ -186,3 +186,35 @@ export async function deleteQuip(quipId: string, path: string) {
 
   await Quip.findByIdAndDelete(quipId);
 }
+
+// quip.actions.ts
+
+export async function likeQuip(quipId: string, userId: string) {
+  await connectToDB();
+
+  const quip = await Quip.findById(quipId);
+  if (!quip) {
+    throw new Error("Quip not found");
+  }
+
+  // Check if the user has already liked the quip
+  if (!quip.likes.includes(userId)) {
+    quip.likes.push(userId);
+    await quip.save();
+  }
+}
+
+export async function unlikeQuip(quipId: string, userId: string) {
+  await connectToDB();
+
+  const quip = await Quip.findById(quipId);
+  if (!quip) {
+    throw new Error("Quip not found");
+  }
+
+  const index = quip.likes.indexOf(userId);
+  if (index > -1) {
+    quip.likes.splice(index, 1);
+    await quip.save();
+  }
+}

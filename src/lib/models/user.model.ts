@@ -22,6 +22,12 @@ const userSchema = new mongoose.Schema({
       ref: "Community",
     },
   ],
+  likedQuips: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Quip",
+    },
+  ],
 });
 
 const User = mongoose.models.User || mongoose.model("User", userSchema);

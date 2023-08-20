@@ -27,6 +27,12 @@ const quipSchema = new mongoose.Schema({
       ref: "Quip",
     },
   ],
+  likes: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
 });
 
 const Quip = mongoose.models.Quip || mongoose.model("Quip", quipSchema);
