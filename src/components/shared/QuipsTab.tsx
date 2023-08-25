@@ -7,6 +7,7 @@ interface Result {
   image: string;
   id: string;
   quip: {
+    likes: string[];
     _id: string;
     text: string;
     parentId: string | null;
@@ -52,6 +53,7 @@ async function QuipsTab({ currentUserId, accountId, accountType }: Props) {
           currentUserId={currentUserId}
           parentId={quip.parentId}
           content={quip.text}
+          likes={quip.likes}
           author={
             accountType === "User"
               ? { name: result.name, image: result.image, id: result.id }

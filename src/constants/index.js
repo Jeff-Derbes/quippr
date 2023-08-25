@@ -17,7 +17,7 @@ export const sidebarLinks = [
   {
     imgURL: "/assets/create.svg",
     route: "/create-quip",
-    label: "Create Thread",
+    label: "Create Quip",
   },
   {
     imgURL: "/assets/user.svg",

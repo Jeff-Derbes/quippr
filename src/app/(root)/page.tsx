@@ -24,6 +24,7 @@ export default async function Home() {
                 parentId={quip.parentId}
                 content={quip.text}
                 author={quip.author}
+                likes={quip.likes}
                 community={quip.community}
                 createdAt={quip.createdAt}
                 comments={quip.children}

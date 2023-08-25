@@ -27,6 +27,9 @@ export async function fetchQuips(pageNumber = 1, pageSize = 20) {
       model: User,
     })
     .populate({
+      path: "likes",
+    })
+    .populate({
       path: "children", // Populate the children field
       populate: {
         path: "author", // Populate the author field within children
@@ -187,34 +190,67 @@ export async function deleteQuip(quipId: string, path: string) {
   await Quip.findByIdAndDelete(quipId);
 }
 
-// quip.actions.ts
-
-export async function likeQuip(quipId: string, userId: string) {
+export async function likeQuip(quipId: string, userId: string, path: string) {
   await connectToDB();
 
   const quip = await Quip.findById(quipId);
   if (!quip) {
     throw new Error("Quip not found");
+  }
+
+  const user = await User.findOne({ id: userId });
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  if (!quip.likes) {
+    quip.likes = [];
+  }
+
+  if (!user.likedQuips) {
+    user.likedQuips = [];
   }
 
   // Check if the user has already liked the quip
   if (!quip.likes.includes(userId)) {
     quip.likes.push(userId);
     await quip.save();
+
+    user.likedQuips.push(quipId);
+    await user.save();
   }
+
+  revalidatePath(path);
 }
 
-export async function unlikeQuip(quipId: string, userId: string) {
+export async function unlikeQuip(quipId: string, userId: string, path: string) {
   await connectToDB();
 
+  // Find the quip by its ID
   const quip = await Quip.findById(quipId);
   if (!quip) {
     throw new Error("Quip not found");
   }
 
-  const index = quip.likes.indexOf(userId);
-  if (index > -1) {
-    quip.likes.splice(index, 1);
-    await quip.save();
+  // Check if the user has already liked the quip
+  const userHasLiked = quip.likes.includes(userId);
+  if (!userHasLiked) {
+    throw new Error("User hasn't liked this quip");
   }
+
+  // Remove the user's ID from the likes array of the quip
+  quip.likes.pull(userId);
+  await quip.save();
+
+  // Find the user by its ID
+  const user = await User.findOne({ id: userId });
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  // Remove the quip's ID from the likedQuips array of the user
+  user.likedQuips.pull(quipId);
+  await user.save();
+
+  revalidatePath(path);
 }

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
-import { deleteQuip } from "@/lib/actions/quip.actions";
 import DeleteButton from "@/components/ui/deleteButton";
+import LikeButton from "@/components/ui/LikeButton";
 
 interface Props {
   id: string;
@@ -24,6 +24,7 @@ interface Props {
       image: string;
     };
   }[];
+  likes: string[];
   isComment?: boolean;
 }
 
@@ -33,6 +34,7 @@ function QuipCard({
   parentId,
   content,
   author,
+  likes,
   community,
   createdAt,
   comments,
@@ -70,12 +72,11 @@ function QuipCard({
             <p className={"mt-2 text-small-regular text-light-2"}>{content}</p>
             <div className={`${isComment && "mb-10"} mt-5 flex flex-col gap-3`}>
               <div className={"flex items-center gap-2"}>
-                <Image
-                  src="/assets/heart-gray.svg"
-                  alt="heart"
-                  width={24}
-                  height={24}
-                  className="cursor-pointer object-contain"
+                <LikeButton
+                  quipId={JSON.stringify(id)}
+                  userId={currentUserId}
+                  likes={likes}
+                  initiallyLiked={likes.includes(currentUserId) ? true : false}
                 />
                 <Link href={`/quip/${id}`}>
                   <Image
