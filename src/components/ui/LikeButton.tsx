@@ -54,7 +54,7 @@ function LikeButton({ quipId, initiallyLiked, userId, likes }: Props) {
         className="cursor-pointer object-contain"
       />
       <span className="text-small-semibold text-white text-center h-5">
-        {likes?.length > 0 ? likes.length : ""}
+        {likes?.length ?? ""}
       </span>
     </button>
   );

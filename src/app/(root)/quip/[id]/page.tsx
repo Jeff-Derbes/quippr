@@ -21,6 +21,7 @@ async function Page({ params }: { params: { id: string } }) {
       <div>
         <QuipCard
           key={quip._id}
+          likes={quip.likes}
           id={quip._id}
           currentUserId={user?.id || ""}
           parentId={quip.parentId}
@@ -44,6 +45,7 @@ async function Page({ params }: { params: { id: string } }) {
             <QuipCard
               key={comment._id}
               id={comment._id}
+              likes={comment.likes}
               currentUserId={comment?.id || ""}
               parentId={comment.parentId}
               content={comment.text}
